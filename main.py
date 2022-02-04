@@ -54,28 +54,23 @@ class MyWidget(QMainWindow):
             f.close()
             os.remove('Res.png')
 
-    def movement(self, key):
-        if key == Qt.Key_Left:
-            self.lon -= self.move_speed
-            self.add_img()
-        if key == Qt.Key_Up:
-            self.lat += self.move_speed
-            self.add_img()
-        if key == Qt.Key_Right:
-            self.lon += self.move_speed
-            self.add_img()
-        if key == Qt.Key_Down:
-            self.lat -= self.move_speed
-            self.add_img()
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageUp:
             self.change_delta(False)
         if event.key() == Qt.Key_PageDown:
             self.change_delta(True)
-
-        # task 1.3
-        self.movement(event.key())
+        if event.key() == Qt.Key_Left:
+            self.lon -= self.move_speed
+            self.add_img()
+        if event.key() == Qt.Key_Up:
+            self.lat += self.move_speed
+            self.add_img()
+        if event.key() == Qt.Key_Right:
+            self.lon += self.move_speed
+            self.add_img()
+        if event.key() == Qt.Key_Down:
+            self.lat -= self.move_speed
+            self.add_img()
 
     def change_delta(self, arg):
         if arg:
