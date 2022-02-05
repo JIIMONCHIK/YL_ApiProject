@@ -24,6 +24,8 @@ class MyWidget(QMainWindow):
         self.pushButton_sat.clicked.connect(lambda: self.set_view('sat'))
         self.pushButton_map.clicked.connect(lambda: self.set_view('map'))
 
+        self.btn_search.clicked.connect(lambda: self.search_object(self.line_search.text()))
+
         self.lon = 37.530887
         self.lat = 55.703118
         self.move_speed = 0.001
@@ -55,20 +57,20 @@ class MyWidget(QMainWindow):
             os.remove('Res.png')
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_PageUp:
+        if event.key() in [Qt.Key_PageUp, Qt.Key_1]:
             self.change_delta(False)
-        if event.key() == Qt.Key_PageDown:
+        if event.key() in [Qt.Key_PageDown, Qt.Key_2]:
             self.change_delta(True)
-        if event.key() == Qt.Key_Left:
+        if event.key() == Qt.Key_A:
             self.lon -= self.move_speed
             self.add_img()
-        if event.key() == Qt.Key_Up:
+        if event.key() == Qt.Key_W:
             self.lat += self.move_speed
             self.add_img()
-        if event.key() == Qt.Key_Right:
+        if event.key() == Qt.Key_D:
             self.lon += self.move_speed
             self.add_img()
-        if event.key() == Qt.Key_Down:
+        if event.key() == Qt.Key_S:
             self.lat -= self.move_speed
             self.add_img()
 
@@ -83,6 +85,15 @@ class MyWidget(QMainWindow):
                 self.move_speed /= 2
                 self.delta_ind -= 1
                 self.add_img()
+
+    def search_object(self, param):
+        response = requests.get(f"http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b"
+                                f"&geocode={param}&format=json")
+        json_response = response.json()
+        toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+        toponym_coodrinates = toponym["Point"]["pos"]
+        self.lon, self.lat = float(toponym_coodrinates.split(' ')[0]), float(toponym_coodrinates.split(' ')[1])
+        self.add_img()
 
 
 if __name__ == '__main__':
