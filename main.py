@@ -3,7 +3,7 @@ import os
 import requests
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox
 from PyQt5.QtCore import Qt
 
 SCREEN_SIZE = [600, 450]
@@ -46,7 +46,11 @@ class MyWidget(QMainWindow):
             "l": self.view
         }
 
-        response = requests.get(api_server, params=self.params)
+        try:
+            response = requests.get(api_server, params=self.params)
+        except: 
+            response = None
+
         if response:
             f = open("Res.png", 'wb')
             data = response.content
@@ -87,14 +91,19 @@ class MyWidget(QMainWindow):
                 self.add_img()
 
     def search_object(self, param):
-        response = requests.get(f"http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b"
-                                f"&geocode={param}&format=json")
-        json_response = response.json()
-        toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
-        toponym_coodrinates = toponym["Point"]["pos"]
-        self.lon, self.lat = float(toponym_coodrinates.split(' ')[0]), float(toponym_coodrinates.split(' ')[1])
-        self.add_img()
-
+        try:
+            response = requests.get(f"http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b"
+                                    f"&geocode={param}&format=json")
+            json_response = response.json()
+            toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+            toponym_coodrinates = toponym["Point"]["pos"]
+            self.lon, self.lat = float(toponym_coodrinates.split(' ')[0]), float(toponym_coodrinates.split(' ')[1])
+            self.add_img()
+        except:
+            error = QMessageBox(self)
+            error.setText('Такого объекта не существует')
+            error.exec()
+            
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
