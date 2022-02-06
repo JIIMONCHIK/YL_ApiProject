@@ -31,6 +31,9 @@ class MyWidget(QMainWindow):
         self.move_speed = 0.001
         self.view = 'map'
 
+        self.pt = False
+        self.pt_params = ""
+
         self.add_img()
 
     def set_view(self, arg):
@@ -46,9 +49,13 @@ class MyWidget(QMainWindow):
             "l": self.view
         }
 
+        if self.pt:
+            self.params["pt"] = self.pt_params
+        self.pt = False
+
         try:
             response = requests.get(api_server, params=self.params)
-        except: 
+        except:
             response = None
 
         if response:
@@ -98,6 +105,8 @@ class MyWidget(QMainWindow):
             toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
             toponym_coodrinates = toponym["Point"]["pos"]
             self.lon, self.lat = float(toponym_coodrinates.split(' ')[0]), float(toponym_coodrinates.split(' ')[1])
+            self.pt = True
+            self.pt_params = f"{self.lon},{self.lat},pm2gnl"
             self.add_img()
         except:
             error = QMessageBox(self)
