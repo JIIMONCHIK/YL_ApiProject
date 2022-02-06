@@ -52,7 +52,6 @@ class MyWidget(QMainWindow):
 
         if self.pt:
             self.params["pt"] = self.pt_params
-        # self.pt = False
 
         try:
             response = requests.get(api_server, params=self.params)
