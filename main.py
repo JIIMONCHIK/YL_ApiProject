@@ -13,11 +13,10 @@ class MyWidget(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('Design.ui', self)
-        self.setGeometry(600, 450, *SCREEN_SIZE)
         self.delta_ind = 0
         self.delta_pars = [0.5, 1, 2, 4, 6, 10, 18, 70]
         self.image = QLabel(self)
-        self.image.move(0, 50)
+        self.image.move(0, 100)
         self.image.resize(600, 450)
 
         self.pushButton_sql.clicked.connect(lambda: self.set_view('skl'))
@@ -31,11 +30,16 @@ class MyWidget(QMainWindow):
         self.lat = 55.703118
         self.move_speed = 0.001
         self.view = 'map'
+        self.addr = ''
+        self.default_addr = 'Поле для адресса выбранной метки'
 
         self.pt = False
         self.pt_params = ""
 
         self.add_img()
+    
+    def set_addr_label(self):
+        self.label_addr.setText(self.addr)
 
     def set_view(self, arg):
         self.view = arg
@@ -69,6 +73,8 @@ class MyWidget(QMainWindow):
 
     def reset_pt(self):
         self.pt = False
+        self.addr = self.default_addr
+        self.set_addr_label()
         self.add_img()
 
     def keyPressEvent(self, event):
@@ -108,6 +114,8 @@ class MyWidget(QMainWindow):
             json_response = response.json()
             toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
             toponym_coodrinates = toponym["Point"]["pos"]
+            self.addr = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+            self.set_addr_label()
             self.lon, self.lat = float(toponym_coodrinates.split(' ')[0]), float(toponym_coodrinates.split(' ')[1])
             self.pt = True
             self.pt_params = f"{self.lon},{self.lat},pm2gnl"
